@@ -2,7 +2,7 @@ FROM python:3.8-slim-buster
 
 RUN mkdir /app
 
-COPY ./*.txt ./*.py ./*.sh ./*.onnx /app/
+COPY ./*.txt ./*.py ./*.sh ./*.json ./*.onnx /app/ 
 
 
 RUN cd /app \

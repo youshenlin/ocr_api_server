@@ -31,7 +31,8 @@ class Server(object):
                 self.ocr = ddddocr.DdddOcr(old=True)
             else:
                 print("使用OCR新模型启动，如需要使用旧模型，请额外添加参数  --old开启")
-                self.ocr = ddddocr.DdddOcr()
+                # self.ocr = ddddocr.DdddOcr()
+                self.ocr = ddddocr.DdddOcr(det=False, ocr=False, import_onnx_path="sean_1.0_27_13000_2023-04-21-23-39-29.onnx", charsets_path="charsets.json")
         else:
             print("ocr模块未开启，如需要使用，请使用参数  --ocr开启")
         if self.det_option:

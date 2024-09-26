@@ -5,6 +5,7 @@ import json
 
 import ddddocr
 from flask import Flask, request
+from flask_cors import CORS
 
 parser = argparse.ArgumentParser(description="使用ddddocr搭建的最简api服务")
 parser.add_argument("-p", "--port", type=int, default=9898)
@@ -15,6 +16,7 @@ parser.add_argument("--det", action="store_true", help="开启目标检测")
 args = parser.parse_args()
 
 app = Flask(__name__)
+CORS(app)
 
 
 class Server(object):
@@ -32,7 +34,8 @@ class Server(object):
             else:
                 print("使用OCR新模型启动，如需要使用旧模型，请额外添加参数  --old开启")
                 # self.ocr = ddddocr.DdddOcr()
-                self.ocr = ddddocr.DdddOcr(det=False, ocr=False, import_onnx_path="sean_v2_1.0_21_54000_2023-04-26-23-19-58.onnx", charsets_path="charsets2.json")
+                self.ocr = ddddocr.DdddOcr(
+                    det=False, ocr=False, import_onnx_path="sean_v2_1.0_21_54000_2023-04-26-23-19-58.onnx", charsets_path="charsets2.json")
         else:
             print("ocr模块未开启，如需要使用，请使用参数  --ocr开启")
         if self.det_option:
@@ -62,16 +65,17 @@ class Server(object):
         else:
             raise Exception(f"不支持的滑块算法类型: {algo_type}")
 
+
 server = Server(ocr=args.ocr, det=args.det, old=args.old)
 
 
 def get_img(request, img_type='file', img_name='image'):
     if img_type == 'b64':
-        img = base64.b64decode(request.get_data()) # 
-        try: # json str of multiple images
+        img = base64.b64decode(request.get_data())
+        try:  # json str of multiple images
             dic = json.loads(img)
             img = base64.b64decode(dic.get(img_name).encode())
-        except Exception as e: # just base64 of single image
+        except Exception as e:  # just base64 of single image
             pass
     else:
         img = request.files.get(img_name).read()
@@ -107,6 +111,7 @@ def ocr(opt, img_type='file', ret_type='text'):
     except Exception as e:
         return set_ret(e, ret_type)
 
+
 @app.route('/slide/<algo_type>/<img_type>', methods=['POST'])
 @app.route('/slide/<algo_type>/<img_type>/<ret_type>', methods=['POST'])
 def slide(algo_type='compare', img_type='file', ret_type='text'):
@@ -117,6 +122,7 @@ def slide(algo_type='compare', img_type='file', ret_type='text'):
         return set_ret(result, ret_type)
     except Exception as e:
         return set_ret(e, ret_type)
+
 
 @app.route('/ping', methods=['GET'])
 def ping():
